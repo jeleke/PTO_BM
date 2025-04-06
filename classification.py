@@ -35,7 +35,7 @@ import xgboost as xgb
 Define functions and search space for hyperparameter tuning
 """
 
-search_space3 = {
+search_space = {
     'estimator__n_estimators': [10],
     'estimator__learning_rate': [0.01, 0.1, 0.2, 0.3],
     'estimator__max_depth': range(3, 10),
@@ -58,26 +58,15 @@ def return_correlated_features(feature_values, feature_names, correlation_indica
             if (np.abs(corr_matrix.iloc[i, j]) >= correlation_threshold):
                 correlated_feature_names.append(feature_name)
                 break
-
     return correlated_feature_names
-def y_to_grid(df):          #Could also use OneHotEncoding, does the same basically 
+def y_to_grid(df):   
+    #for OneHotEncoding
     y = pd.DataFrame(np.zeros(len(df)))
     y[['1', '2', '3', '4', '5', '6']] = [0,0,0,0,0,0]   #initialize Matrix with binary outcome for every Prediction Class
 
     for i in df.index: 
         for j in np.arange(1, 7, 1):
             if df['Classifier Label_x'][i] == j:
-                y.iloc[i, j] = 1
-    y.drop([0], axis = 1, inplace = True)
-    return y
-def y_to_grid2(df):
-    df = df.astype(int)
-    y = pd.DataFrame(np.zeros(len(df)))
-    y[['1', '2', '3', '4', '5', '6']] = [0,0,0,0,0,0]   #initialize Matrix with binary outcome for every Prediction Class
-
-    for i in range(len(df)): 
-        for j in np.arange(1, 7, 1):
-            if df['Label'][i] == j:
                 y.iloc[i, j] = 1
     y.drop([0], axis = 1, inplace = True)
     return y
@@ -91,8 +80,10 @@ def Find_Optimal_Cutoff_CZ(TPR, FPR, thresholds):   #CZ method
 """
 Load dataframe
 """
-PATH = 'Radiomics_Table.xlsx'
+PATH = 'Users/jeleke/linked_radiomics.csv'
 df = pd.read_excel(PATH)
+
+
 
 """
 Model training & validation
@@ -105,6 +96,7 @@ fpr_all1 = []
 tpr_all1 = []
 threshold_all1 = []
 feature_importances = []
+
 all_labels = pd.DataFrame()                                    
 all_predictions = pd.DataFrame()
 
@@ -113,8 +105,7 @@ for i in range(6):
     glb['tprs' + str(i)] = []
     glb['aucs' + str(i)] = []
 
-#for ROC curves
-    mean_fpr = np.linspace(0, 1, 100)
+mean_fpr = np.linspace(0, 1, 100) #For ROC Curves
 
 for i in tqdm_notebook(np.arange(15), 'Iteration'):
     df_shuffled = shuffle(df).copy().reset_index(drop =True)
@@ -135,47 +126,41 @@ for i in tqdm_notebook(np.arange(15), 'Iteration'):
         test_index = X_test.index.tolist()
         features = X_train.columns
         
-        #Standard Scaler 
+        # Standardization of continuous features
         scaler = StandardScaler()        
         X_train = scaler.fit_transform(X_train)
         X_train = pd.DataFrame(X_train, columns = features)        
         X_test = scaler.transform(X_test)
         X_test = pd.DataFrame(X_test, columns = features)
         
-        #Removing correlated features       
+        # Removing correlated features       
         train_correlated_feature_names = return_correlated_features(feature_values = X_train, feature_names = X_train.columns) #correlated feature removal for every features apart from the last
         X_train = X_train.drop(columns = train_correlated_feature_names)        
         X_test = X_test.drop(columns = train_correlated_feature_names)
-        print(len(X_train.columns))
-        print(X_train.shape[1])
 
-        # #Feature selection with mRMR
-        # feat_number = 20
-        # selected_feat = pymrmr.mRMR(X_train_outer_loop, 'MIQ', feat_number)
-        # X_train_outer_loop = X_train_outer_loop[selected_feat]
-        # X_test_outer_loop = X_test_outer_loop[selected_feat]
 
-        # #Feature selection with LinearSVC
-        # sel_ = SelectFromModel(LinearSVC(C = 0.01, penalty = 'l1', dual = False))
-        # sel_.fit(X_train_outer_loop, y_max_train_outer_loop)
-        # selected_feat = X_train_outer_loop.columns[(sel_.get_support())]
-        # X_train_outer_loop = sel_.transform(X_train_outer_loop)
-        # X_test_outer_loop = sel_.transform(X_test_outer_loop)
-        # print(selected_feat)
+        # Feature selection with mRMR
+        feat_number = 20
+        selected_feat = pymrmr.mRMR(X_train_outer_loop, 'MIQ', feat_number)
+        X_train_outer_loop = X_train_outer_loop[selected_feat]
+        X_test_outer_loop = X_test_outer_loop[selected_feat]
 
-        #Hyperparameter tuning
+        # Hyperparameter tuning
         clf = RandomizedSearchCV(estimator=OneVsRestClassifier(xgb.XGBClassifier()),
-                           param_distributions=search_space3)  #default 5fold splitter
+                           param_distributions=search_space)  #default 5fold splitter
         clf.fit(X_train, y_train)
         hyperparam = clf.best_params_
         
-        #Predictor fitting
+        # Predictor fitting
         predictor = clf.best_estimator_
         predictor.fit(X_train, y_max_train)
         y_pred = predictor.predict_proba(X_test)
         y_pred_hard = predictor.predict(X_test)
         
-        #STORE ALL RESULTS
+        """ 
+        Store results from each iteration 
+        """ 
+        
         # Compute ROC curve and ROC area for each class
         fpr = dict()
         tpr = dict()
@@ -186,19 +171,21 @@ for i in tqdm_notebook(np.arange(15), 'Iteration'):
         for i in range(6):
             fpr[i], tpr[i], thresh[i] = roc_curve(y_test.iloc[:, i], y_pred[:, i])
             roc_auc[i] = auc(fpr[i], tpr[i])
-
             feature_importances_dic[str(i)] = dict(zip(X_train.columns.tolist(), predictor.estimators_[i].feature_importances_))
 
         threshold_all1.append(thresh)
         auc_scores1.append(roc_auc)
         fpr_all1.append(fpr)
-        tpr_all1.append(tpr)      #collect class-wise tpr/fpr/thresholds for ROC curve analysis and calculation of optimal cut-off 
+        tpr_all1.append(tpr)  
         feature_importances.append(feature_importances_dic) #collect class-wise feature importances
         all_predictions = all_predictions.append(pd.DataFrame(y_pred)).reset_index(drop = True)
         all_labels = all_labels.append(pd.DataFrame(y_max_test)).reset_index(drop = True)
 
         
-       #For ROC Curve Visualization 
+       """ 
+       ROC Curve Visualization 
+       """
+
         fix, ax = plt.subplots()
         for i in range(6):            
             glb['viz' + str(i)] = RocCurveDisplay.from_predictions(y_test.iloc[:, i], y_pred[:, i],
@@ -211,7 +198,6 @@ for i in tqdm_notebook(np.arange(15), 'Iteration'):
             interp_tpr[0] = 0.0
             glb['tprs' + str(i)].append(interp_tpr)
             glb['aucs' + str(i)].append(glb['viz' + str(i)].roc_auc)
-print(mean_auc_from_dict(auc_scores1))
 
 """
 Plot ROC curves
@@ -258,10 +244,10 @@ for i, tprno in enumerate(tpr_list):
     ax.legend(handles = [line1, line2], loc = 'lower right', prop = {'size': 7.5})
     plt.show()
 
+
 """
 Determination of optimal ROC cut-off value and average sensitivity/specificity 
 """
-
 names = ['Breast', 'GI', 'SCLC', 'Melanoma', 'NSCLC', "Others"]
 metrics = dict()
 for i in range(6): 
@@ -273,9 +259,9 @@ for i in range(6):
         threshold = threshold_all1[j][i]
 
         thresh, coordinate = Find_Optimal_Cutoff_CZ(tpr, fpr, threshold)
-        fpr2, tpr2 = coordinate
-        sens.append(tpr2)
-        spec.append(1-fpr2)
+        fpr_opt, tpr_opt = coordinate
+        sens.append(tpr_opt)
+        spec.append(1-fpr_opt)
     metrics[names[i]] = [mean(sens), stdev(sens), mean(spec), stdev(spec)]
     metrics_df = pd.DataFrame(metrics, index = ['Sens', 'SensStd', 'Spec', 'SpecStd']).T
 
@@ -296,18 +282,16 @@ def get_all_features(listdict):
     len_array = []
     for i in range(len(listdict)):
         len_array.append(len(listdict[i]))
-    
     max_value = max(len_array)
     pos_ax = len_array.index(max_value)
-
     feature_list = dict()
     for j, value in enumerate(listdict[pos_ax]):
         try:
-            feature_list[value] = list(map(itemgetter(value), listdict))  #should we also get the standard deviation? stdev instead of mean 
+            feature_list[value] = list(map(itemgetter(value), listdict))
         except: 
-            feature_list[value] =listdict[pos_ax][value]  #when there is only one cross-validation fold avalaible and no means
-    
+            feature_list[value] =listdict[pos_ax][value]
     return feature_list
+    
 def make_tuple(feature_list) :
     feature_tuple = []
     for i in range(len(feature_list)): 
@@ -328,32 +312,8 @@ with pd.ExcelWriter(buffer, engine = 'openpyxl') as writer:
 Display and visualize feature importances
 """
 
-def dataframe_modification(df):        
-    def try_literal_eval(e): #for dataframe modification 
-        try:
-            return literal_eval(e)  #transform string to list (lists are saved as strings upon saving as Excel file)
-        except ValueError:
-            pass
-    
-    zeros = []               #Blank list of list
-    for i in range(len(df)):
-        zeros.append([0,0])
-
-    df['ValuesList'] = zeros #initialize the content of this columns as lists
-    for i in range(len(df)):
-        df['ValuesList'][i] = try_literal_eval(df['Values'][i])   #transform the string of the list to list object in ValuesList column
-
-    means = []
-    for i in range(len(df)):
-        try:
-            means.append(mean(df['ValuesList'][i]))
-        except: 
-            means.append(df['ValuesList'][i])
-    df['Mean'] = means
-    df['Mean'] = df['Mean'].fillna(0)  #Features ranked 0 
-    return df
 def split_observations(df):
-    def split_dataframe_rows(df,column_selectors):                   #https://gist.github.com/jlln/338b4b0b55bd6984f883#:~:text=Efficiently%20split%20Pandas%20Dataframe%20cells%20containing%20lists%20into,%3D%20the%20symbol%20used%20to%20perform%20the%20split
+    def split_dataframe_rows(df,column_selectors):          #https://gist.github.com/jlln/338b4b0b55bd6984f883#:~:text=Efficiently%20split%20Pandas%20Dataframe%20cells%20containing%20lists%20into,%3D%20the%20symbol%20used%20to%20perform%20the%20split
         def _split_list_to_rows(row,row_accumulator,column_selector):
             split_rows = {}
             max_split = 0
@@ -392,7 +352,6 @@ for i in range(len(classes)):
     classes_mod.append(classes[i] + "_mod")
 
 for i, label in enumerate(classes_mod): 
-    print(i)
     glb[label] = split_observations(dataframe_modification(glb[classes[i]]))
     fig, ax = plt.subplots()
     ax = sns.boxplot(x="Feature", y="ValuesList", data=glb[label], color=".25", showmeans = True)

@@ -19,7 +19,7 @@ pip install -r `requirements.txt`
 
 2. Extract radiomic features from your preprocessed segmentation masks using PyRadiomics with the `params.yaml` file
 
-3. Perform radiomic feature aggregation according to the comnputations described in Chang et al. (https://github.com/Aneja-Lab-Yale/Aneja-Lab-Public-BrainMetsRadiomics)
+3. Perform radiomic feature aggregation according to the computations described in Chang et al. (https://github.com/Aneja-Lab-Yale/Aneja-Lab-Public-BrainMetsRadiomics)
 
 4. Link clinical features and the semantic, qualitative imaging features to the radiomics frame with `link_features.py`.
 

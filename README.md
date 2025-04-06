@@ -23,7 +23,7 @@ pip install -r requirements.txt
 
 4. Link clinical features and the semantic, qualitative imaging features to the radiomics frame wiht link_features.py
 
-5. Run the classifier using FinalCode_1.py
+5. Run the classifier using classification.py
 
 > 📌 Note: Input data paths need to be configured inside the script.
 

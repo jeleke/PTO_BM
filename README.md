@@ -5,7 +5,7 @@ This repository contains the Python code used for the radiomics-based classifica
 
 ## 🧠 Project Overview
 
-This script implements a baseline machine learning classifier using radiomic features from cranial magnetic resonance imaging (contast-enhanced T1-weighted sequence, FLAIR sequence) to predict the primary origin of brain metastases. It includes model training using `XGBoost`, evaluation using ROC curves, and hyperparameter tuning.
+This script implements a baseline machine learning classifier using radiomic features from cranial magnetic resonance imaging (contast-enhanced T1-weighted sequence, FLAIR sequence) to predict the primary origin of brain metastases. It includes model training using `XGBoost` with nested cross-validation, feature selection and model evaluation using ROC curves. It also includes radiomic feature aggregation and model training with additional clinical information and qualitative information derived from imaging.  
 
 ## 📄 Associated Publication
 

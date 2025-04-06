@@ -80,9 +80,12 @@ def Find_Optimal_Cutoff_CZ(TPR, FPR, thresholds):   #CZ method
 """
 Load dataframe
 """
-PATH = 'Users/jeleke/linked_radiomics.csv'
+PATH = 'Users/jeleke/radiomcis_base.xlsx'
+#PATH = 'Users/jeleke/radiomics_uwa.xlsx'    # Unweighted averaging of radiomics features per patient
+#PATH = 'Users/jeleke/radiomcis_wa.xlsx'     # Weighted averaging of radiomics features per patient 
+#PATH = 'Users/jeleke/radiomcis_big3.xlsx'   # Filtering of three largest radiomics features per patient 
+#PATH = 'Users/jeleke/linked_radiomics.xlsx' # Linked with clinical and qualitative imaging features, see link_features.py
 df = pd.read_excel(PATH)
-
 
 
 """

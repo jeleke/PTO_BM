@@ -23,7 +23,7 @@ pip install -r requirements.txt
 
 4. Link clinical features and the semantic, qualitative imaging features to the radiomics frame with `link_features.py`.
 
-5. Run the classifier using `classification.py`.
+5. Run the XGBoost classifier on the modified dataframes using `classification.py`.
 
 > 📌 Note: Input data paths need to be configured inside the script.
 

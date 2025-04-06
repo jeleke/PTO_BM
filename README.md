@@ -13,21 +13,17 @@ _Jekel, L._ et al. (2025). "Classifying brain metastases by primary tumor etiolo
 
 ## 🚀 Getting Started
 
-1. Clone this repository:
-```bash
-git clone https://github.com/yourusername/pto-bm-classifier.git
-cd pto-bm-classifier
-```
 
-2. Create environment and install dependencies:
-```bash
+1. Create environment and install dependencies:
 pip install -r requirements.txt
-```
 
-3. Run the Python file:
-```bash
-python FinalCode_1.py
-```
+2. Extract the radiomics from your preprocessed segmentation masks using PyRadiomics with the params.yaml file
+
+3. Perform radiomic feature aggregation according to the comnputations described in Chang et al. (https://github.com/Aneja-Lab-Yale/Aneja-Lab-Public-BrainMetsRadiomics)
+
+4. Link clinical features and the semantic, qualitative imaging features to the radiomics frame wiht link_features.py
+
+5. Run the classifier using FinalCode_1.py
 
 > 📌 Note: Input data paths need to be configured inside the script.
 

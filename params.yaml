@@ -1,1 +1,50 @@
-# Parameters for Radiomic Feature Extraction using PyRadiomics
+# #############################  Extracted using PyRadiomics version: 3.0.1 ######################################
+
+imageType:
+  Original: {}
+  LoG:
+  Wavelet: {}
+
+featureClass:
+  shape:
+  firstorder:
+  glcm:  
+    - 'Autocorrelation'
+    - 'JointAverage'
+    - 'ClusterProminence'
+    - 'ClusterShade'
+    - 'ClusterTendency'
+    - 'Contrast'
+    - 'Correlation'
+    - 'DifferenceAverage'
+    - 'DifferenceEntropy'
+    - 'DifferenceVariance'
+    - 'JointEnergy'
+    - 'JointEntropy'
+    - 'Imc1'
+    - 'Imc2'
+    - 'Idm'
+    - 'Idmn'
+    - 'Id'
+    - 'Idn'
+    - 'InverseVariance'
+    - 'MaximumProbability'
+    - 'SumEntropy'
+    - 'SumSquares'
+  glrlm:
+  glszm:
+  gldm:
+
+setting:
+  normalize: true
+  normalizeScale: 100  # This allows you to use more or less the same bin width.
+
+  # Resampling:
+  interpolator: 'sitkBSpline'
+  resampledPixelSpacing: [1, 1, 1]
+
+  # First order specific settings:
+  voxelArrayShift: 300
+
+  # Default Label Setting:
+  label: 1

@@ -1,7 +1,7 @@
 
 # PTO_BM: Primary Tumor Origin Classifier in Brain Metastases
 
-This repository contains the Python code used for the radiomics-based classification of primary tumor origin in patients with brain metastases. This project was conducted at the ImagineQuant Lab, Department of Radiology & Biomedical Imaging, Yale School of Medicine.
+This repository contains the Python code used for the radiomics-based classification of primary tumor origin in patients with brain metastases. This project was conducted at the ImagineQuant Lab.
 
 ## 🧠 Project Overview
 

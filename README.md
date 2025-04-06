@@ -14,7 +14,7 @@ _Jekel, L._ et al. (2025). "Classifying brain metastases by primary tumor etiolo
 ## 🚀 Getting Started
 
 
-1. Create environment and install dependencies:
+1. Install dependencies:
 pip install -r requirements.txt
 
 2. Extract radiomic features from your preprocessed segmentation masks using PyRadiomics with the `params.yaml` file

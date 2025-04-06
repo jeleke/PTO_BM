@@ -15,7 +15,7 @@ _Jekel, L._ et al. (2025). "Classifying brain metastases by primary tumor etiolo
 
 
 1. Install dependencies:
-pip install -r requirements.txt
+pip install -r `requirements.txt`
 
 2. Extract radiomic features from your preprocessed segmentation masks using PyRadiomics with the `params.yaml` file
 
@@ -23,7 +23,7 @@ pip install -r requirements.txt
 
 4. Link clinical features and the semantic, qualitative imaging features to the radiomics frame with `link_features.py`.
 
-5. Run the XGBoost classifier on the modified dataframes using `classification.py`.
+5. Run the `XGBoost` classifier on the modified dataframes using `classification.py`.
 
 > 📌 Note: Input data paths need to be configured inside the script.
 
